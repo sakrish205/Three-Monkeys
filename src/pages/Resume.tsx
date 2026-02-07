@@ -8,14 +8,18 @@ import { Button } from "@/components/ui/button";
 import { Loader2, ArrowLeft } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
+import { Textarea } from "@/components/ui/textarea";
+
+
 export default function Resume() {
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [analysisResult, setAnalysisResult] = useState<ResumeAnalysis | null>(null);
+    const [jobDescription, setJobDescription] = useState("");
 
     const handleFileUpload = async (file: File) => {
         setIsAnalyzing(true);
         try {
-            const result = await analyzeResume(file);
+            const result = await analyzeResume(file, jobDescription);
             setAnalysisResult(result);
         } catch (error) {
             console.error("Analysis failed:", error);
@@ -26,6 +30,7 @@ export default function Resume() {
 
     const handleReset = () => {
         setAnalysisResult(null);
+        setJobDescription("");
     };
 
     return (
@@ -52,16 +57,44 @@ export default function Resume() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         animate={{ opacity: 1, scale: 1 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        className="flex flex-col items-center justify-center min-h-[400px] border rounded-lg bg-card/50"
+                        className="flex flex-col gap-8 items-center justify-center min-h-[400px]"
                     >
-                        <div className="w-full max-w-xl p-8">
-                            <UploadZone onFileSelect={handleFileUpload} isAnalyzing={isAnalyzing} />
-                            {isAnalyzing && (
-                                <div className="mt-8 flex flex-col items-center gap-4 text-muted-foreground">
-                                    <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                                    <p>Analyzing your resume...</p>
-                                </div>
-                            )}
+                        <div className="w-full max-w-2xl bg-card border rounded-lg shadow-sm">
+                            <div className="p-6 border-b">
+                                <h3 className="font-semibold text-lg flex items-center gap-2">
+                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs">1</span>
+                                    Add Job Description (Optional but Recommended)
+                                </h3>
+                                <p className="text-sm text-muted-foreground mt-1 ml-8">
+                                    Paste the job description for higher accuracy and role-specific keywords.
+                                </p>
+                            </div>
+                            <div className="p-6">
+                                <Textarea
+                                    placeholder="Paste job description here..."
+                                    className="min-h-[150px] resize-y"
+                                    value={jobDescription}
+                                    onChange={(e) => setJobDescription(e.target.value)}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="w-full max-w-2xl bg-card border rounded-lg shadow-sm">
+                            <div className="p-6 border-b">
+                                <h3 className="font-semibold text-lg flex items-center gap-2">
+                                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-primary text-xs">2</span>
+                                    Upload Resume
+                                </h3>
+                            </div>
+                            <div className="p-8">
+                                <UploadZone onFileSelect={handleFileUpload} isAnalyzing={isAnalyzing} />
+                                {isAnalyzing && (
+                                    <div className="mt-8 flex flex-col items-center gap-4 text-muted-foreground">
+                                        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                                        <p>Analyzing your resume against the job description...</p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </motion.div>
                 ) : (
