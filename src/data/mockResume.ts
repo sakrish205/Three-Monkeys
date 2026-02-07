@@ -1,16 +1,19 @@
 import type { ResumeAnalysis } from "../types";
 
+// Generate dynamic scores for more realistic demo
+const generateDynamicScore = () => Math.floor(Math.random() * 15 + 70); // 70-85
+
 export const MOCK_RESUME_ANALYSIS: ResumeAnalysis = {
-    score: 78,
-    atsCompatibility: 85,
-    wordCount: 450,
+    score: generateDynamicScore(),
+    atsCompatibility: generateDynamicScore(),
+    wordCount: Math.floor(Math.random() * 200 + 350), // 350-550
     keywords: {
-        found: ["React", "TypeScript", "Node.js", "Teamwork", "Agile"],
-        missing: ["Docker", "Kubernetes", "GraphQL", "CI/CD"],
+        found: ["CAD", "SolidWorks", "AutoCAD", "Design", "Manufacturing"],
+        missing: ["ANSYS", "FEA", "Pro/E", "Simulation", "GD&T"],
     },
     skills: {
-        technical: ["Javascript", "HTML/CSS", "Python", "Git"],
-        soft: ["Communication", "Problem Solving", "Adaptability"],
+        technical: ["Mechanical Design", "CAD/CAM", "Thermodynamics", "Material Science"],
+        soft: ["Problem Solving", "Team Collaboration", "Technical Communication"],
     },
     sections: {
         summary: true,
@@ -24,9 +27,9 @@ export const MOCK_RESUME_ANALYSIS: ResumeAnalysis = {
         parsingSuccess: true,
     },
     improvements: [
-        "Add more quantifiable metrics to your experience section (e.g., 'Increased efficiency by 20%').",
-        "Include links to your GitHub or portfolio projects for better visibility.",
-        "Consider adding a 'Certifications' section if you have relevant credentials.",
-        "Ensure consistent date formatting throughout the document.",
+        "Add quantifiable metrics to your design projects (e.g., 'Reduced production cost by 15%').",
+        "Include specific CAD software versions and proficiency levels.",
+        "Highlight any manufacturing process improvements or innovations.",
+        "Add certifications like Six Sigma, PMP, or relevant engineering licenses.",
     ],
 };

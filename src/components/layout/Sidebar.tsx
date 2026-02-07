@@ -1,13 +1,12 @@
 import { Link, useLocation } from "react-router-dom";
 import { cn } from "@/lib/utils";
-import { LayoutDashboard, FileText, GraduationCap, TrendingUp, Home } from "lucide-react";
+import { FileText, GraduationCap, TrendingUp, Home } from "lucide-react";
 
 const sidebarItems = [
     { href: "/", label: "Home", icon: Home },
-    { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
-    { href: "/resume", label: "Resume Analyzer", icon: FileText },
-    { href: "/learning", label: "Learning Path", icon: GraduationCap },
-    { href: "/market", label: "Market Insights", icon: TrendingUp },
+    { href: "/resume", label: "Resume Optimizer", icon: FileText },
+    { href: "/learning", label: "Mech Skills", icon: GraduationCap },
+    { href: "/market", label: "ME Job Market", icon: TrendingUp },
 ]
 
 export function Sidebar() {
@@ -17,7 +16,7 @@ export function Sidebar() {
             <div className="flex h-full max-h-screen flex-col gap-2">
                 <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
                     <Link to="/" className="flex items-center gap-2 font-semibold">
-                        <span>CareerPilot</span>
+                        <span>MechGuru</span>
                     </Link>
                 </div>
                 <div className="flex-1">

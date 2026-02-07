@@ -6,11 +6,11 @@ export function Home() {
         <div className="flex flex-col items-center justify-center min-h-[60vh] text-center space-y-6 pt-20">
             <div className="space-y-4">
                 <h1 className="text-4xl font-extrabold tracking-tight lg:text-5xl text-primary">
-                    CareerPilot
+                    MechGuru
                 </h1>
                 <p className="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-                    AI-Powered Student Career Guidance Platform.
-                    Master your resume, learning path, and market readiness.
+                    AI-Powered Resume Assistant for Mechanical Engineers.
+                    Optimize your resume and ace mechanical engineering job applications.
                 </p>
             </div>
             <div className="flex gap-4">
@@ -18,7 +18,7 @@ export function Home() {
                     <Button size="lg">Analyze Resume</Button>
                 </Link>
                 <Link to="/learning">
-                    <Button size="lg" variant="outline">Start Learning</Button>
+                    <Button size="lg" variant="outline">Advance Skills</Button>
                 </Link>
             </div>
         </div>

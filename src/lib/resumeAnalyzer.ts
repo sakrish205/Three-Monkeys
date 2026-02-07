@@ -1,82 +1,69 @@
 import type { ResumeAnalysis } from "../types";
-import { MOCK_RESUME_ANALYSIS } from "../data/mockResume";
 
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
-// Helper function to extract keywords from job description
-function extractKeywordsFromJD(jd: string): string[] {
-    // Simple keyword extraction - in real app, this would use NLP/AI
-    const commonWords = new Set(['the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by', 'from', 'as', 'is', 'was', 'are', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did', 'will', 'would', 'should', 'could', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those', 'our', 'your', 'we', 'you']);
+// Real resume analysis using backend API
+export async function analyzeResume(file: File, jobDescription?: string): Promise<ResumeAnalysis> {
+    try {
+        console.log(`📤 Uploading resume: ${file.name} (${file.size} bytes)`);
+        console.log(`🎯 JD provided: ${jobDescription ? 'Yes' : 'No'}`);
 
-    const words = jd
-        .toLowerCase()
-        .replace(/[^\w\s]/g, ' ')
-        .split(/\s+/)
-        .filter(word => word.length > 3 && !commonWords.has(word));
+        // Create FormData for file upload
+        const formData = new FormData();
+        formData.append('resumeFile', file);
+        if (jobDescription && jobDescription.trim()) {
+            formData.append('jobDescription', jobDescription.trim());
+        }
 
-    // Count frequency
-    const frequency = words.reduce((acc, word) => {
-        acc[word] = (acc[word] || 0) + 1;
-        return acc;
-    }, {} as Record<string, number>);
+        // Call backend API
+        const response = await fetch(`${API_URL}/api/analyze-resume`, {
+            method: 'POST',
+            body: formData,
+        });
 
-    // Get top keywords by frequency
-    const keywords = Object.entries(frequency)
-        .sort((a, b) => b[1] - a[1])
-        .slice(0, 10)
-        .map(([word]) => word.charAt(0).toUpperCase() + word.slice(1));
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
 
-    return keywords;
+        const result: ResumeAnalysis = await response.json();
+
+        // Ensure formatting field exists
+        if (!result.formatting) {
+            result.formatting = {
+                fileType: file.name.split('.').pop()?.toUpperCase() || 'PDF',
+                parsingSuccess: true
+            };
+        }
+
+        console.log("✅ Analysis complete:", result);
+        return result;
+
+    } catch (error) {
+        console.error("❌ Analysis failed:", error);
+
+        // If backend is not running or API key is missing, throw meaningful error
+        if (error instanceof TypeError && error.message.includes('fetch')) {
+            throw new Error('Backend server is not running. Please start the Python backend server.');
+        }
+
+        throw error;
+    }
 }
 
-// Simulating extraction and analysis logic
-export async function analyzeResume(file: File, jobDescription?: string): Promise<ResumeAnalysis> {
-    return new Promise((resolve) => {
-        // Simulate processing time
-        setTimeout(() => {
-            console.log(`Analyzing file: ${file.name} (${file.size} bytes)`);
-            if (jobDescription) {
-                console.log(`Using Job Description for enhanced accuracy: ${jobDescription.substring(0, 50)}...`);
-            }
-
-            // In a real app, this would extract text and call an AI API.
-            // Here we just return mock analysis.
-            // We can slightly modify the mock based on file name, size, or JD if needed.
-            const result = { ...MOCK_RESUME_ANALYSIS };
-
-            // If JD is present, we can simulate a "tailored" analysis
-            if (jobDescription && jobDescription.trim().length > 0) {
-                // Extract some "keywords" from JD (simulate AI extraction)
-                const jdKeywords = extractKeywordsFromJD(jobDescription);
-                console.log("📊 Extracted JD Keywords:", jdKeywords);
-
-                // Simulate slightly different results when JD is provided
-                result.score = Math.min(result.score + 8, 95);
-                result.atsCompatibility = Math.min(result.atsCompatibility + 10, 98);
-
-                // Add JD-specific keywords found (with markers to distinguish them)
-                const jdFoundKeywords = jdKeywords.slice(0, 3).map(kw => `${kw} (from JD)`);
-                result.keywords.found = [...result.keywords.found, ...jdFoundKeywords];
-
-                // Add JD-specific missing keywords
-                const jdMissingKeywords = jdKeywords.slice(3, 6).map(kw => `${kw} (from JD)`);
-                result.keywords.missing = [...result.keywords.missing, ...jdMissingKeywords];
-
-                console.log("✅ Found Keywords (with JD):", result.keywords.found);
-                console.log("⚠️ Missing Keywords (with JD):", result.keywords.missing);
-
-                // Add JD-tailored improvements at the top
-                result.improvements = [
-                    `✅ Your resume matches ${Math.floor(Math.random() * 20 + 60)}% of the job description keywords!`,
-                    `💡 Consider emphasizing these JD skills: ${jdKeywords.slice(0, 2).join(", ")}`,
-                    `🎯 Tailor your experience section to highlight projects related to: ${jdKeywords[0]}`,
-                    `📝 Add these keywords from the JD: ${jdKeywords.slice(3, 5).join(", ")}`,
-                    ...result.improvements
-                ];
-            }
-
-            result.formatting.fileType = file.name.split('.').pop()?.toUpperCase() || 'UNKNOWN';
-            result.formatting.parsingSuccess = true;
-            resolve(result);
-        }, 2000); // 2 seconds delay
-    });
+// Check if backend is available
+export async function checkBackendHealth(): Promise<{ available: boolean; geminiConfigured: boolean }> {
+    try {
+        const response = await fetch(`${API_URL}/api/health`);
+        if (response.ok) {
+            const data = await response.json();
+            return {
+                available: true,
+                geminiConfigured: data.gemini_api_configured || false
+            };
+        }
+        return { available: false, geminiConfigured: false };
+    } catch {
+        return { available: false, geminiConfigured: false };
+    }
 }
