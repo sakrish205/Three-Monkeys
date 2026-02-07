@@ -47,21 +47,43 @@ export function AnalysisReport({ analysis }: AnalysisReportProps) {
                     <div>
                         <p className="text-sm font-medium text-muted-foreground mb-2">Found Keywords</p>
                         <div className="flex flex-wrap gap-2">
-                            {analysis.keywords.found.map((kw) => (
-                                <span key={kw} className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium dark:bg-green-900/30 dark:text-green-300">
-                                    {kw}
-                                </span>
-                            ))}
+                            {analysis.keywords.found.map((kw, idx) => {
+                                const isFromJD = kw.includes("(from JD)");
+                                const displayText = kw.replace(" (from JD)", "");
+                                return (
+                                    <span
+                                        key={`${kw}-${idx}`}
+                                        className={`px-3 py-1 rounded-full text-sm font-medium ${isFromJD
+                                                ? "bg-blue-100 text-blue-700 border-2 border-blue-400 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-600"
+                                                : "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
+                                            }`}
+                                    >
+                                        {displayText}
+                                        {isFromJD && " 🎯"}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </div>
                     <div>
                         <p className="text-sm font-medium text-muted-foreground mb-2">Missing Important Keywords</p>
                         <div className="flex flex-wrap gap-2">
-                            {analysis.keywords.missing.map((kw) => (
-                                <span key={kw} className="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm font-medium dark:bg-yellow-900/30 dark:text-yellow-300">
-                                    {kw}
-                                </span>
-                            ))}
+                            {analysis.keywords.missing.map((kw, idx) => {
+                                const isFromJD = kw.includes("(from JD)");
+                                const displayText = kw.replace(" (from JD)", "");
+                                return (
+                                    <span
+                                        key={`${kw}-${idx}`}
+                                        className={`px-3 py-1 rounded-full text-sm font-medium ${isFromJD
+                                                ? "bg-orange-100 text-orange-700 border-2 border-orange-400 dark:bg-orange-900/30 dark:text-orange-300 dark:border-orange-600"
+                                                : "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300"
+                                            }`}
+                                    >
+                                        {displayText}
+                                        {isFromJD && " 📌"}
+                                    </span>
+                                );
+                            })}
                         </div>
                     </div>
                 </div>

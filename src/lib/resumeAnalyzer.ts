@@ -47,22 +47,29 @@ export async function analyzeResume(file: File, jobDescription?: string): Promis
             if (jobDescription && jobDescription.trim().length > 0) {
                 // Extract some "keywords" from JD (simulate AI extraction)
                 const jdKeywords = extractKeywordsFromJD(jobDescription);
+                console.log("📊 Extracted JD Keywords:", jdKeywords);
 
                 // Simulate slightly different results when JD is provided
                 result.score = Math.min(result.score + 8, 95);
                 result.atsCompatibility = Math.min(result.atsCompatibility + 10, 98);
 
-                // Add JD-specific keywords found
-                result.keywords.found = [...result.keywords.found, ...jdKeywords.slice(0, 3)];
+                // Add JD-specific keywords found (with markers to distinguish them)
+                const jdFoundKeywords = jdKeywords.slice(0, 3).map(kw => `${kw} (from JD)`);
+                result.keywords.found = [...result.keywords.found, ...jdFoundKeywords];
 
                 // Add JD-specific missing keywords
-                result.keywords.missing = [...result.keywords.missing, ...jdKeywords.slice(3, 5)];
+                const jdMissingKeywords = jdKeywords.slice(3, 6).map(kw => `${kw} (from JD)`);
+                result.keywords.missing = [...result.keywords.missing, ...jdMissingKeywords];
+
+                console.log("✅ Found Keywords (with JD):", result.keywords.found);
+                console.log("⚠️ Missing Keywords (with JD):", result.keywords.missing);
 
                 // Add JD-tailored improvements at the top
                 result.improvements = [
                     `✅ Your resume matches ${Math.floor(Math.random() * 20 + 60)}% of the job description keywords!`,
                     `💡 Consider emphasizing these JD skills: ${jdKeywords.slice(0, 2).join(", ")}`,
                     `🎯 Tailor your experience section to highlight projects related to: ${jdKeywords[0]}`,
+                    `📝 Add these keywords from the JD: ${jdKeywords.slice(3, 5).join(", ")}`,
                     ...result.improvements
                 ];
             }
