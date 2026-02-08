@@ -1,7 +1,6 @@
-version: '3.8'
-
 services:
   backend:
+    container_name: three-monkeys-backend
     build: ./backend
     ports:
       - "5000:5000"
@@ -10,6 +9,7 @@ services:
     restart: always
 
   frontend:
+    container_name: three-monkeys-frontend
     build: .
     ports:
       - "80:80"

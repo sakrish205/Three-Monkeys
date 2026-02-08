@@ -1,85 +1,82 @@
 # 🎯 Three Monkeys: AI-Powered Career Pulse
 
-**Three Monkeys** is an advanced career intelligence platform designed to bridge the gap between students and the evolving industrial landscape. Built for the **Celestial Buildathon**, it provides real-time job market insights, ATS-optimized resume analysis, and adaptive learning interventions specifically tailored for core engineering sectors in India.
+**Three Monkeys** is an advanced career intelligence platform designed for the **Celestial Buildathon**. It bridges the industrial gap for students using real-time market data, ATS-optimized analysis, and adaptive learning roadmap—all powered by a resilient, cost-free AI infrastructure.
+
+---
+
+## 🏆 Buildathon Problem Statements Solved
+
+| ID | Difficulty | Feature | Solution |
+|----|------------|---------|----------|
+| **H1** | 🔴 Hard | **Market Pulse AI** | Real-time AI job market mapping & trend analysis. |
+| **M2** | 🟡 Medium | **Learning Engine** | Adaptive learning interventions & skill-pivot roadmaps. |
+| **S3** | 🟢 Easy | **Resume Analyzer** | Automated ATS scoring and domain-specific review. |
 
 ---
 
 ## 🚀 Key Features
 
-### 1. 🔍 Market Pulse AI (Problem Statement H1 - Hard)
-- **Real-time Market Scanning**: Dynamically analyzes the Indian job market for core engineering domains (Mechanical, Robotics, Mechatronics, etc.).
-- **Demand Visualization**: Interactive charts showing skill demand vs. supply trends.
-- **AI Pivot Suggestions**: Personalized career pivot recommendations based on emerging industrial hubs (e.g., Pune, Bangalore, Chennai).
-- **Live Intervention Output**: "Pivots" users from legacy skills to modern high-demand competencies with quantifiable ROI.
+### 1. 🔍 Market Pulse AI
+- **Dynamic Market Scans**: Analyzes the Indian job market for core engineering (Mechanical, Robotics, Mechatronics).
+- **Interactive Visualization**: Recharts-powered trend analysis for demand vs. supply.
+- **AI Hub Mapping**: Identifies high-growth industrial cluster pivots (Pune, Bangalore, Chennai).
 
-### 2. 📝 Automated Resume Analyzer (Problem Statement S3 - Easy)
-- **ATS Scoring**: Instant compatibility check against industry standards.
-- **Mechanical Domain Expertise**: Specialized analysis for ME skills like CAD, FEA, GD&T, and CFD.
-- **Actionable Feedback**: Generates 5-7 specific improvements to help resumes clear automated screenings.
+### 2. 📝 Automated Resume Optimizer
+- **ATS Intelligence**: Instant 0-100 scoring with mechanical domain expertise (CAD, FEA, GD&T).
+- **Mechanical Specialist**: Fine-tuned tips for core industrial sector clearances.
 
-### 3. 🧠 Smart Learning Engine (Problem Statement M2 - Medium)
-- **Adaptive Roadmap**: Generates personalized learning paths based on current market deficiency.
-- **Resource Curations**: Direct links to top-tier learning materials (Coursera, Udemy, etc.).
+### 3. 🧠 Smart Learning Interventions
+- **Adaptive Roadmap**: Generates skill-pivot paths based on current market scarcity.
+- **ROI Predictions**: Visualizes the growth potential of learning high-demand modern tools.
 
 ---
 
-## 🛠️ Technical Architecture
-
-### **Resilient AI Backend**
-The backend implements a **Robust Failover System** using OpenRouter to ensure 100% uptime with zero cost:
-- **Priority Models**: Llama 3.3 70B, Google Gemma 3, and Mistral Small.
-- **Auto-Failover Logic**: If a free model is rate-limited or busy, the system automatically cycles through 7+ alternative high-accuracy free models.
-- **Domain Specialization**: Specialized prompts fine-tuned for Indian industrial engineering contexts.
-
-### **Modern Frontend**
-- **Framework**: React 18 + Vite + TypeScript.
-- **UI/UX**: Custom themed via **Shadcn/UI**, **Framer Motion** for animations, and a rich dark-mode aesthetics.
-- **Visuals**: **Recharts** for interactive market trend data visualization.
+## 🛠️ Resilient AI Architecture
+Built using a **Dual-Failover AI Backend** on OpenRouter:
+- **Zero Cost**: Uses 100% free high-accuracy models (Llama 3.3, Gemma 3, Mistral).
+- **Reliability**: If one model is busy, the system automatically cycles through 7+ alternatives until a response is secured.
+- **Fast Response**: Average insight generation under 10 seconds.
 
 ---
 
-## 🐳 Docker Setup (Easiest Way)
+## 🐳 Docker Setup (Recommended for Judges)
 
-The easiest way to run the entire system (Frontend + Backend) is using Docker Compose.
+The easiest way to run the entire system (Frontend + Backend) is using Docker.
 
-### **1. Prerequisites**
-- Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+### **1. Configuration**
+Add your OpenRouter API Key to `backend/.env`:
+```env
+OPENROUTER_API_KEY=your_key_here
+```
 
-### **2. Setup Environment**
-Update the `backend/.env` file with your OpenRouter API key.
-
-### **3. Run with One Command**
+### **2. Launch**
 ```bash
 docker-compose up --build
 ```
-- **Frontend**: Accessible at [http://localhost](http://localhost)
-- **Backend API**: Accessible at [http://localhost:5000](http://localhost:5000)
+
+### **3. Access**
+- **Frontend**: [http://localhost](http://localhost)
+- **API Status**: [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
 ---
 
-## ⚙️ Local Installation (Manual)
+## ⚙️ Local Development (Manual)
 
-### **1. Backend Setup**
+### **Backend**
 ```bash
 cd backend
-python -m venv venv
-source venv/bin/activate  # venv\Scripts\activate on Windows
 pip install -r requirements.txt
 python server.py
 ```
 
-### **2. Frontend Setup**
+### **Frontend**
 ```bash
-# In the root directory
 npm install
 npm run dev
 ```
-
-## 🏆 Buildathon Compliance
-This project addresses **3 problem statements** (Easy, Medium, Hard) within a single unified platform, focusing on high-variance data visualization and premium design aesthetics (10 marks).
 
 ---
 
 ## 👥 Team: Three Monkeys
 - **Repository**: [https://github.com/sakrish205/Three-Monkeys](https://github.com/sakrish205/Three-Monkeys)
-- **Tech Stack**: React, Python/Flask, TailwindCSS, OpenRouter AI.
+- **Design Philosophy**: Premium Dark Mode, Glassmorphism, and Data-First UX.
