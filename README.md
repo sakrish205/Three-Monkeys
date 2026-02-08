@@ -1,73 +1,79 @@
-# React + TypeScript + Vite
+# 🎯 Three Monkeys: AI-Powered Career Pulse
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Three Monkeys** is an advanced career intelligence platform designed to bridge the gap between students and the evolving industrial landscape. Built for the **Celestial Buildathon**, it provides real-time job market insights, ATS-optimized resume analysis, and adaptive learning interventions specifically tailored for core engineering sectors in India.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## 🚀 Key Features
 
-## React Compiler
+### 1. 🔍 Market Pulse AI (Problem Statement H1 - Hard)
+- **Real-time Market Scanning**: Dynamically analyzes the Indian job market for core engineering domains (Mechanical, Robotics, Mechatronics, etc.).
+- **Demand Visualization**: Interactive charts showing skill demand vs. supply trends.
+- **AI Pivot Suggestions**: Personalized career pivot recommendations based on emerging industrial hubs (e.g., Pune, Bangalore, Chennai).
+- **Live Intervention Output**: "Pivots" users from legacy skills to modern high-demand competencies with quantifiable ROI.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 2. 📝 Automated Resume Analyzer (Problem Statement S3 - Easy)
+- **ATS Scoring**: Instant compatibility check against industry standards.
+- **Mechanical Domain Expertise**: Specialized analysis for ME skills like CAD, FEA, GD&T, and CFD.
+- **Actionable Feedback**: Generates 5-7 specific improvements to help resumes clear automated screenings.
 
-## Expanding the ESLint configuration
+### 3. 🧠 Smart Learning Engine (Problem Statement M2 - Medium)
+- **Adaptive Roadmap**: Generates personalized learning paths based on current market deficiency.
+- **Resource Curations**: Direct links to top-tier learning materials (Coursera, Udemy, etc.).
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+---
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## 🛠️ Technical Architecture
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+### **Resilient AI Backend**
+The backend implements a **Robust Failover System** using OpenRouter to ensure 100% uptime with zero cost:
+- **Priority Models**: Llama 3.3 70B, Google Gemma 3, and Mistral Small.
+- **Auto-Failover Logic**: If a free model is rate-limited or busy, the system automatically cycles through 7+ alternative high-accuracy free models.
+- **Domain Specialization**: Specialized prompts fine-tuned for Indian industrial engineering contexts.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### **Modern Frontend**
+- **Framework**: React 18 + Vite + TypeScript.
+- **UI/UX**: Custom themed via **Shadcn/UI**, **Framer Motion** for animations, and a rich dark-mode aesthetics.
+- **Visuals**: **Recharts** for interactive market trend data visualization.
+
+---
+
+## ⚙️ Installation & Setup
+
+### **Prerequisites**
+- Node.js (v18+)
+- Python (3.9+)
+
+### **1. Backend Setup**
+```bash
+cd backend
+python -m venv venv
+source venv/bin/activate  # venv\Scripts\activate on Windows
+pip install -r requirements.txt
+```
+Create a `.env` file in the `backend` folder:
+```env
+OPENROUTER_API_KEY=your_key_here
+```
+Run server:
+```bash
+python server.py
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+### **2. Frontend Setup**
+```bash
+# In the root directory
+npm install
+npm run dev
 ```
+
+---
+
+## 🏆 Buildathon Compliance
+This project addresses **3 problem statements** (Easy, Medium, Hard) within a single unified platform, focusing on high-variance data visualization and premium design aesthetics (10 marks).
+
+---
+
+## 👥 Team: Three Monkeys
+- **Repository**: [https://github.com/sakrish205/Three-Monkeys](https://github.com/sakrish205/Three-Monkeys)
+- **Tech Stack**: React, Python/Flask, TailwindCSS, OpenRouter AI.
