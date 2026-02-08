@@ -13,9 +13,10 @@
 - **Learning Interventions** - Smart skill-pivot recommendations based on market gaps
 
 ### 📄 Resume Optimizer
-- **ATS Compatibility Score** - Instant 0-100 scoring with visual feedback
-- **Domain-Specific Analysis** - Specialized for Mechanical Engineering (CAD, FEA, GD&T)
-- **Actionable Suggestions** - AI-generated improvement tips
+- **Deterministic Scoring Engine** - 100% consistent scores using a hybrid Python-LLM architecture.
+- **ATS Compatibility Score** - Instant 0-100 scoring with 40/30/30 weighted analysis.
+- **Domain-Specific Analysis** - Specialized for Mechanical Engineering (CAD, FEA, GD&T).
+- **Actionable Suggestions** - AI-generated improvement tips for specific missing keywords.
 
 ### 🎓 Mech Skills Tracker
 - **40+ Skills** across 7 categories: Core Engineering, Digital/Software, Robotics, Automation, HVAC, Emerging Tech

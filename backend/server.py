@@ -158,6 +158,65 @@ def extract_text_from_docx(docx_file):
         print(f"Error extracting DOCX text: {str(e)}")
         return None
 
+def calculate_ats_score(extracted_data, job_description_text=None):
+    """
+    Deterministically calculates the ATS score based on extracted features.
+    """
+    weights = {
+        "keywords": 0.40,  # 40% based on keyword overlap
+        "experience": 0.30, # 30% based on section completeness
+        "sections": 0.30    # 30% based on critical sections
+    }
+    
+    score = 0
+    details = {
+        "keyword_score": 0,
+        "experience_score": 0,
+        "section_score": 0
+    }
+    
+    # 1. Section Scoring (30%)
+    sections = extracted_data.get("sections", {})
+    req_sections = ["education", "experience", "projects", "skills"]
+    found_sections = sum(1 for s in req_sections if sections.get(s))
+    details["section_score"] = (found_sections / len(req_sections)) * 100
+    score += details["section_score"] * weights["sections"]
+    
+    # 2. Keyword/Skill Scoring (40%)
+    # If no JD, we look for core Mechanical Engineering keywords as a baseline
+    found_skills = set([s.lower() for s in extracted_data.get("skills", {}).get("technical", [])])
+    
+    if job_description_text:
+        # Compare extracted resume skills against common ME keywords
+        jd_keywords = ["cad", "solidworks", "ansys", "fea", "mechanical", "design", "manufacturing", "simulation", "python", "matlab"]
+        overlap = [k for k in jd_keywords if k in str(job_description_text.lower())]
+        matches = [k for k in overlap if k in found_skills]
+        if overlap:
+            details["keyword_score"] = (len(matches) / len(overlap)) * 100
+        else:
+            details["keyword_score"] = 50 # Neutral if no clear keywords in JD
+    else:
+        # Baseline ME skill density
+        essential_me = ["cad", "design", "solidworks", "catia", "ansys", "fea", "gd&t", "manufacturing"]
+        matches = [s for s in found_skills if any(me in s for me in essential_me)]
+        details["keyword_score"] = min(100, (len(matches) / 5) * 100)
+        
+    score += details["keyword_score"] * weights["keywords"]
+    
+    # 3. Experience Score (30%)
+    # Based on depth of details found
+    found_keywords = extracted_data.get("keywords", {}).get("found", [])
+    if len(found_keywords) > 10:
+        details["experience_score"] = 100
+    elif len(found_keywords) > 5:
+        details["experience_score"] = 70
+    else:
+        details["experience_score"] = 40
+        
+    score += details["experience_score"] * weights["experience"]
+    
+    return round(score)
+
 @app.route("/api/analyze-resume", methods=["POST"])
 def analyze_resume():
     """API endpoint to analyze resume"""
@@ -186,27 +245,24 @@ def analyze_resume():
         
         # Truncate text to avoid prompt bloat
         resume_text = resume_text[:10000]
-        
-        # Calculate real word count programmatically for consistency
         real_word_count = len(resume_text.split())
         
+        # NEW PROMPT: Focus strictly on data extraction for deterministic scoring
         prompt = f"""
-        You are an expert ATS (Applicant Tracking System) analyzer specialized in Mechanical Engineering roles.
-        Analyze the following resume{" and job description" if job_description else ""}:
+        You are a precise data extraction engine for resume analysis.
+        Extract the following features from the resume and compare against the job description.
         
         RESUME:
         {resume_text}
         
         {f"JOB DESCRIPTION: {job_description}" if job_description else ""}
         
-        Respond ONLY with valid JSON in this format:
+        Respond ONLY with valid JSON capturing every skill, keyword, and section present.
         {{
-          "score": <0-100>,
-          "atsCompatibility": <0-100>,
           "keywords": {{ "found": [], "missing": [] }},
           "skills": {{ "technical": [], "soft": [] }},
           "sections": {{ "summary": bool, "education": bool, "experience": bool, "projects": bool, "skills": bool }},
-          "improvements": []
+          "improvements": ["List 3-5 specific, actionable improvements based on the data"]
         }}
         """
         
@@ -218,20 +274,31 @@ def analyze_resume():
         try:
             json_match = re.search(r'(\{.*\})', content, re.DOTALL)
             if json_match:
-                analysis = json.loads(json_match.group(1))
+                extracted_data = json.loads(json_match.group(1))
             else:
-                analysis = json.loads(content)
+                extracted_data = json.loads(content)
                 
-            analysis["formatting"] = {
-                "fileType": file_type,
-                "parsingSuccess": True
+            # CALCULATE SCORE DETERMINISTICALLY IN PYTHON
+            final_score = calculate_ats_score(extracted_data, job_description)
+            
+            # Form final response
+            analysis = {
+                "score": final_score,
+                "atsCompatibility": final_score,
+                "wordCount": real_word_count,
+                "keywords": extracted_data.get("keywords", {"found": [], "missing": []}),
+                "skills": extracted_data.get("skills", {"technical": [], "soft": []}),
+                "sections": extracted_data.get("sections", {}),
+                "improvements": extracted_data.get("improvements", []),
+                "formatting": {
+                    "fileType": file_type,
+                    "parsingSuccess": True
+                }
             }
-            # Inject pre-calculated word count for 100% accuracy
-            analysis["wordCount"] = real_word_count
             
             return jsonify(analysis)
         except Exception as e:
-            return jsonify({"error": f"Failed to parse AI response: {str(e)}"}), 500
+            return jsonify({"error": f"Failed to parse extraction response: {str(e)}"}), 500
             
     except Exception as e:
         print(f"Error in analyze_resume: {str(e)}")

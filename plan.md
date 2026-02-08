@@ -76,8 +76,10 @@ To ensure stable performance on the free tier, we implemented:
 - **Smart Model Rotation**: Fallback chain (Step 3.5 -> Qwen -> Llama -> DeepSeek).
 - **Extended Timeouts**: Analysis timeout increased to 60s for deep resume scanning.
 - **Multi-Key Load Balancing**: Automatic rotation between multiple OpenRouter API keys.
-- **Prompt Optimization**: Auto-truncation of massive files to prevent input bloat.
-- **Deterministic Scanning**: Programmatic word counting and low temperature (0.1) for 100% consistent scoring.
+- **Hybrid Scoring Architecture**: 
+  - **LLM Extraction**: Precise parser for skills, experience, and sections.
+  - **Python Engine**: Deterministic calculation (40% Keywords, 30% Experience, 30% Sections).
+  - **100% Consistency**: Guaranteed identical results for identical inputs.
 
 ---
 
