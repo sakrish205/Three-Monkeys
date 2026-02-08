@@ -12,5 +12,11 @@ export default defineConfig({
   },
   server: {
     allowedHosts: ['heidi-irradiant-lou.ngrok-free.dev'],
+    proxy: {
+      '/api': {
+        target: 'http://localhost:5000',
+        changeOrigin: true,
+      },
+    },
   },
 })

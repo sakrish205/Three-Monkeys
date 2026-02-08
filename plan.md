@@ -80,6 +80,8 @@ To ensure stable performance on the free tier, we implemented:
   - **LLM Extraction**: Precise parser for skills, experience, and sections.
   - **Python Engine**: Deterministic calculation (40% Keywords, 30% Experience, 30% Sections).
   - **100% Consistency**: Guaranteed identical results for identical inputs.
+- **Unified Development Workflow**: Single command (`npm run dev`) to start both frontend and backend concurrently.
+- **Automatic Docker Connectivity**: Auto-configured Nginx proxy and 0.0.0.0 binding for seamless container communication.
 
 ---
 

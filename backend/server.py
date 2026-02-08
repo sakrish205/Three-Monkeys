@@ -350,6 +350,6 @@ def health_check():
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    print(f"🚀 MechLab Backend starting on http://localhost:{port}")
-    print(f"� Configured Keys: {len(OPENROUTER_API_KEYS)}")
-    app.run(debug=True, port=port)
+    print(f"MechLab Backend starting on http://localhost:{port}")
+    print(f"Configured Keys: {len(OPENROUTER_API_KEYS)}")
+    app.run(host="0.0.0.0", debug=True, port=port)

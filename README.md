@@ -52,20 +52,13 @@
 - Python 3.10+
 - OpenRouter API Key
 
-### Local Development
-
-**Backend:**
-```bash
-cd backend
-pip install -r requirements.txt
-python server.py
-```
-
-**Frontend:**
+### Local Development (Unified)
+Run both Frontend and Backend with a single command:
 ```bash
 npm install
 npm run dev
 ```
+*Frontend runs on `http://localhost:5173` | Backend runs on `http://localhost:5000`*
 
 ### Docker (Recommended)
 
@@ -82,6 +75,8 @@ docker-compose up --build
 3. Access:
 - **App**: http://localhost
 - **API**: http://localhost:5000/api/health
+
+*Note: The setup includes an automatic Nginx proxy, so no manual configuration is needed.*
 
 ---
 
