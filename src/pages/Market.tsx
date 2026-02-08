@@ -81,8 +81,8 @@ export default function Market() {
             <motion.div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8" variants={itemVariants}>
                 <div className="max-w-2xl">
                     <div className="flex items-center gap-2 mb-1">
-                        <Sparkles className="h-5 w-5 text-amber-500 fill-amber-500" />
-                        <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600">Dynamic Skill-Market Optimizer</span>
+                        <Sparkles className="h-5 w-5 text-emerald-400 fill-emerald-400" />
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">Dynamic Skill-Market Optimizer</span>
                     </div>
                     <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
                         CarrierPulse Insights

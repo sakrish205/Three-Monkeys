@@ -1,83 +1,113 @@
-# 🚀 CareerPilot - Student Career Guidance Platform
+# 🔧 MechLab - Development Plan
 
 ## Project Overview
 
-**CareerPilot** is an intelligent, student-centric guidance system built for the **Celestial Buildathon**. It addresses three selected problem statements to help students navigate their career preparation journey using cutting-edge AI and data visualization.
+**MechLab** is an AI-powered career intelligence platform for Mechanical Engineering students, built for the **Celestial Buildathon 2026**.
 
 ---
 
 ## 🎯 Problem Statements Addressed
 
-| Level | ID | Problem | Solution Feature | Status |
-|-------|-----|---------|------------------|--------|
-| 🟢 Easy | S3 | Automated Resume Review | **Resume Analyzer** | ✅ Complete |
-| 🟡 Medium | M2 | Adaptive Learning Path | **Smart Learning Engine** | ✅ Complete |
+| Level | ID | Problem | Solution | Status |
+|-------|-----|---------|----------|--------|
+| 🟢 Easy | S3 | Automated Resume Review | **Resume Optimizer** | ✅ Complete |
+| 🟡 Medium | M2 | Adaptive Learning Path | **Mech Skills Tracker** | ✅ Complete |
 | 🔴 Hard | H1 | AI-Driven Job Market Mapping | **Market Pulse AI** | ✅ Complete |
 
 ---
 
-## 🛠️ Tech Stack (Production-Ready)
+## ✅ Implementation Status
 
-| Layer | Technology | Role |
-|-------|------------|------|
-| **Frontend** | React 18 + Vite | Lightning-fast UI core |
-| **Backend** | Python / Flask | AI Orchestration & API |
-| **AI Engine** | OpenRouter (Failover System) | Resilient access to Llama 3.3, Gemma 3, Mistral |
-| **Styling** | Tailwind CSS + Shadcn/ui | Premium, glassmorphic design system |
-| **Deployment** | Docker & Docker Compose | One-click environment setup |
-| **Visualization** | Recharts | Interactive market trend analysis |
-| **Animations** | Framer Motion | Smooth dashboard transitions |
+### Resume Optimizer (S3)
+- [x] PDF/DOCX file upload support
+- [x] ATS Compatibility Scoring (0-100) with dynamic colors
+- [x] Mechanical Engineering keyword matching
+- [x] AI-generated improvement suggestions
+- [x] Glassmorphism UI design
 
----
+### Mech Skills Tracker (M2)
+- [x] 40+ skills across 7 categories
+- [x] Progress tracking with localStorage persistence
+- [x] Difficulty-based filtering (Beginner/Intermediate/Advanced)
+- [x] Expandable skill cards with resources
+- [x] Curated learning links
 
-## ✅ Feature Implementation Status
-
-### 1. Resume Analyzer (S3)
-- [x] Automated Resume Analysis (PDF/DOCX support)
-- [x] ATS Compatibility Scoring (0-100)
-- [x] Mechanical Engineering specialized keyword matching
-- [x] Actionable improvement suggestions generator
-- [x] Dynamic backend integration via OpenRouter
-
-### 2. Smart Learning Engine (M2)
-- [x] Adaptive skill assessment via market gap analysis
-- [x] Personalized learning roadmap generation
-- [x] Interactive skill-pivot recommendations
-- [x] Curated resource links for top-tier learning platforms
-- [x] Real-time ROI estimation for skill upgrades
-
-### 3. Market Pulse AI (H1)
-- [x] Real-time Job Market Aggregation (Dynamic AI Fallback)
-- [x] Interactive Skill Demand Trend Charts (6-month granularity)
-- [x] Domestic (India) industrial hub mapping (Pune, Bangalore, etc.)
-- [x] AI-driven "Learning Interventions" (Legacy vs. Modern skill pivoting)
-- [x] Live Job Alerts with match-score percentages
+### Market Pulse AI (H1)
+- [x] Real-time AI market analysis
+- [x] Interactive skill demand trend charts
+- [x] Indian industrial hub mapping
+- [x] Learning intervention recommendations
+- [x] Personalized job matching with scores
 
 ---
 
-## 🐳 Docker Orchestration
+## 🎨 UI/UX Accomplishments
 
-The system is fully containerized for judge review:
-- **`three-monkeys-backend`**: Flask server with dependency management.
-- **`three-monkeys-frontend`**: Nginx-served React application.
-- **`one-click launch`**: `docker-compose up --build` starts everything.
-
----
-
-## 🎨 Final UI Accomplishments
-- [x] Glassmorphism Dashboard with Mesh Gradients
-- [x] Responsive Sidebar-less Layout for max focus
-- [x] Skeleton Loaders for all AI-heavy states
-- [x] Toast notifications and interactive modal popups
-- [x] Custom Theme Tokens (Celestial Night theme)
+- [x] Glassmorphism design system (backdrop-blur, translucent cards)
+- [x] Emerald/Teal color scheme with proper contrast
+- [x] Sora font from Google Fonts
+- [x] Dark mode enabled by default
+- [x] Animated navigation bar with Framer Motion
+- [x] Responsive single-column layout
+- [x] Skeleton loaders for AI states
 
 ---
 
-## 📈 Revenue & Sustainability
-- [x] Freemium Model documented
-- [x] B2B College partnership plan finalized
-- [x] API-driven scalability architecture implemented
+## 🛠️ Tech Stack
+
+| Component | Technology |
+|-----------|------------|
+| Frontend | React 18 + Vite + TypeScript |
+| Styling | Tailwind CSS + shadcn/ui |
+| Backend | Python Flask |
+| AI | OpenRouter (Llama 3.3, Gemma 3, Mistral) |
+| Charts | Recharts |
+| Animations | Framer Motion |
+| Deployment | Docker + Docker Compose |
 
 ---
 
-**Project Finalized & Delivered for Celestial Buildathon! 🎉**
+## 📦 Project Structure
+
+```
+Three Monkeys/
+├── src/
+│   ├── components/
+│   │   ├── ui/          # shadcn components + custom UI
+│   │   ├── layout/      # Layout, Footer, Navbar
+│   │   ├── market/      # Market page components
+│   │   ├── resume/      # Resume analyzer components
+│   │   └── learning/    # Skills tracker components
+│   ├── pages/           # Route pages
+│   ├── data/            # Static data (skills list)
+│   └── lib/             # Utilities
+├── backend/
+│   ├── server.py        # Flask API server
+│   └── requirements.txt
+├── index.html
+├── vite.config.ts
+├── tailwind.config.js
+└── docker-compose.yml
+```
+
+---
+
+## 🚀 Deployment
+
+### Docker
+```bash
+docker-compose up --build
+```
+
+### Manual
+```bash
+# Backend
+cd backend && pip install -r requirements.txt && python server.py
+
+# Frontend
+npm install && npm run dev
+```
+
+---
+
+**Project Complete! 🎉**
