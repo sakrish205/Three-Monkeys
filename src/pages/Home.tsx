@@ -147,7 +147,7 @@ export function Home() {
                         <p className="max-w-xl text-primary-foreground/90 text-lg">
                             Join thousands of engineers who use MechLab to land high-paying roles in top Indian industrial giants.
                         </p>
-                        <Button variant="secondary" size="lg" className="rounded-full px-12 text-primary font-bold hover:scale-105 transition-transform" asChild>
+                        <Button size="lg" className="rounded-full px-12 bg-white text-emerald-600 hover:bg-gray-100 font-bold hover:scale-105 transition-transform border-none shadow-xl" asChild>
                             <Link to="/resume">Upload Your Resume Now</Link>
                         </Button>
                     </div>

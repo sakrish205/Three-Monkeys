@@ -23,18 +23,22 @@
 - **Difficulty Filtering** - Sort by Beginner, Intermediate, Advanced levels
 - **Resource Links** - Curated learning resources for each skill
 
+### 💎 Premium Interface
+- **Next-Gen Landing Page** - Animated hero section with glassmorphic feature cards
+- **Interactive Stats** - Real-time productivity proof (ATS validated, Indian market focus)
+- **Personalized Footer** - Direct links to LinkedIn, GitHub, and professional contact
+- **Framer Motion Animations** - Smooth transitions and interactive UI elements
+
 ---
 
 ## 🛠️ Tech Stack
 
-| Layer | Technology |
-|-------|------------|
 | **Frontend** | React 18 + Vite + TypeScript |
 | **Styling** | Tailwind CSS + shadcn/ui |
 | **UI Design** | Glassmorphism + Sora Font |
 | **Backend** | Python Flask |
-| **AI** | OpenRouter API (Llama 3.3, Gemma 3, Mistral) |
-| **Charts** | Recharts |
+| **AI Models** | Step 3.5 Flash, DeepSeek R1, Llama 3.3, Qwen 2.5 |
+| **Stability** | Multi-key Rotation + Exponential Backoff |
 | **Animations** | Framer Motion |
 | **Deployment** | Docker + Docker Compose |
 
