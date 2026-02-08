@@ -1,6 +1,6 @@
-# Resume Analysis Backend API for MechGuru
+# MechLab Backend API
 
-This backend service uses Google's Gemini API to analyze resumes against job descriptions.
+This backend service uses OpenRouter with multiple model fallbacks to analyze resumes and provide career insights.
 
 ## Setup
 
@@ -9,16 +9,17 @@ This backend service uses Google's Gemini API to analyze resumes against job des
 pip install -r requirements.txt
 ```
 
-2. Create a `.env` file with your Google API key:
+2. Create an `api.env` file in this directory:
 ```
-GOOGLE_API_KEY=your_gemini_api_key_here
+OPENROUTER_API_KEY=your_key_here
+OPENROUTER_API_KEY_2=your_secondary_key_here (optional)
 ```
 
-3. Get your API key from: https://makersuite.google.com/app/apikey
+3. Get your API key from: https://openrouter.ai/keys
 
 4. Run the backend server:
 ```bash
-python backend/server.py
+python server.py
 ```
 
 The API will be available at `http://localhost:5000`

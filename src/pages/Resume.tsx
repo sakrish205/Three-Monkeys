@@ -16,7 +16,7 @@ export default function Resume() {
     const [analysisResult, setAnalysisResult] = useState<ResumeAnalysis | null>(null);
     const [jobDescription, setJobDescription] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const [backendStatus, setBackendStatus] = useState({ available: false, geminiConfigured: false });
+    const [backendStatus, setBackendStatus] = useState({ available: false, apiKeysConfigured: false });
 
     // Check backend health on mount
     useEffect(() => {
@@ -63,21 +63,6 @@ export default function Resume() {
                 </div>
             )}
 
-            {!backendStatus.geminiConfigured && backendStatus.available && (
-                <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4">
-                    <div className="flex items-start gap-3">
-                        <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-                        <div className="flex-1">
-                            <h4 className="font-semibold text-blue-900 dark:text-blue-100">Gemini API Not Configured</h4>
-                            <p className="text-sm text-blue-700 dark:text-blue-300 mt-1">
-                                Add your GOOGLE_API_KEY to backend/.env for real analysis.
-                                <br />
-                                Get your key from: <a href="https://makersuite.google.com/app/apikey" target="_blank" rel="noopener noreferrer" className="underline">Google AI Studio</a>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             <div className="flex items-center justify-between">
                 <div>

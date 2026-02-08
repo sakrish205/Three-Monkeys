@@ -52,18 +52,18 @@ export async function analyzeResume(file: File, jobDescription?: string): Promis
 }
 
 // Check if backend is available
-export async function checkBackendHealth(): Promise<{ available: boolean; geminiConfigured: boolean }> {
+export async function checkBackendHealth(): Promise<{ available: boolean; apiKeysConfigured: boolean }> {
     try {
         const response = await fetch(`${API_URL}/api/health`);
         if (response.ok) {
             const data = await response.json();
             return {
                 available: true,
-                geminiConfigured: data.gemini_api_configured || false
+                apiKeysConfigured: (data.api_keys_configured || 0) > 0
             };
         }
-        return { available: false, geminiConfigured: false };
+        return { available: false, apiKeysConfigured: false };
     } catch {
-        return { available: false, geminiConfigured: false };
+        return { available: false, apiKeysConfigured: false };
     }
 }
