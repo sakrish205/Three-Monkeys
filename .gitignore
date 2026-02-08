@@ -26,6 +26,9 @@ dist-ssr
 # Environment variables
 .env
 .env.local
+api.env
+backend/api.env
+**/api.env
 
 # Python
 backend/venv/
