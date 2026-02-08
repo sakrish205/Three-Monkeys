@@ -38,11 +38,26 @@ The backend implements a **Robust Failover System** using OpenRouter to ensure 1
 
 ---
 
-## ⚙️ Installation & Setup
+## 🐳 Docker Setup (Easiest Way)
 
-### **Prerequisites**
-- Node.js (v18+)
-- Python (3.9+)
+The easiest way to run the entire system (Frontend + Backend) is using Docker Compose.
+
+### **1. Prerequisites**
+- Install [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+
+### **2. Setup Environment**
+Update the `backend/.env` file with your OpenRouter API key.
+
+### **3. Run with One Command**
+```bash
+docker-compose up --build
+```
+- **Frontend**: Accessible at [http://localhost](http://localhost)
+- **Backend API**: Accessible at [http://localhost:5000](http://localhost:5000)
+
+---
+
+## ⚙️ Local Installation (Manual)
 
 ### **1. Backend Setup**
 ```bash
@@ -50,13 +65,6 @@ cd backend
 python -m venv venv
 source venv/bin/activate  # venv\Scripts\activate on Windows
 pip install -r requirements.txt
-```
-Create a `.env` file in the `backend` folder:
-```env
-OPENROUTER_API_KEY=your_key_here
-```
-Run server:
-```bash
 python server.py
 ```
 
@@ -66,8 +74,6 @@ python server.py
 npm install
 npm run dev
 ```
-
----
 
 ## 🏆 Buildathon Compliance
 This project addresses **3 problem statements** (Easy, Medium, Hard) within a single unified platform, focusing on high-variance data visualization and premium design aesthetics (10 marks).

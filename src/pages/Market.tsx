@@ -31,7 +31,8 @@ export default function Market() {
         setActiveDomain(domain);
         try {
             setError(null);
-            const response = await fetch(`http://localhost:5000/api/market/insights?domain=${domain}&range=${timeRange}`);
+            const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+            const response = await fetch(`${API_URL}/api/market/insights?domain=${domain}&range=${timeRange}`);
             const data = await response.json();
             if (response.status !== 200) {
                 setError(data.error || "Failed to fetch market data");
