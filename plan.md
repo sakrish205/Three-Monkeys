@@ -44,11 +44,13 @@
 ## 🎨 UI/UX Accomplishments
 
 - [x] Glassmorphism design system (backdrop-blur, translucent cards)
+- [x] Premium Home Page with interactive feature cards & 3D-styled stats
 - [x] Emerald/Teal color scheme with proper contrast
 - [x] Sora font from Google Fonts
 - [x] Dark mode enabled by default
 - [x] Animated navigation bar with Framer Motion
-- [x] Responsive single-column layout
+- [x] Personalized "Stacked Circular Footer" with GitHub/LinkedIn integration
+- [x] Responsive layout with adaptive spacing
 - [x] Skeleton loaders for AI states
 
 ---
@@ -60,10 +62,22 @@
 | Frontend | React 18 + Vite + TypeScript |
 | Styling | Tailwind CSS + shadcn/ui |
 | Backend | Python Flask |
-| AI | OpenRouter (Llama 3.3, Gemma 3, Mistral) |
+| AI | OpenRouter (Step 3.5, DeepSeek R1, Llama 3.3, Qwen 2.5) |
 | Charts | Recharts |
 | Animations | Framer Motion |
 | Deployment | Docker + Docker Compose |
+
+---
+
+## 🛡️ AI Reliability & Robustness
+
+To ensure stable performance on the free tier, we implemented:
+- **Exponential Backoff**: Automatic 3s retry for 429 (Rate Limit) errors.
+- **Smart Model Rotation**: Fallback chain (Step 3.5 -> Qwen -> Llama -> DeepSeek).
+- **Extended Timeouts**: Analysis timeout increased to 60s for deep resume scanning.
+- **Multi-Key Load Balancing**: Automatic rotation between multiple OpenRouter API keys.
+- **Prompt Optimization**: Auto-truncation of massive files to prevent input bloat.
+- **Deterministic Scanning**: Programmatic word counting and low temperature (0.1) for 100% consistent scoring.
 
 ---
 
