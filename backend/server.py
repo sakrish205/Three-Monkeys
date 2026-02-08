@@ -12,7 +12,7 @@ import re
 import requests
 
 # Load environment variables
-load_dotenv()
+load_dotenv("api.env")
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend

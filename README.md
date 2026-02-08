@@ -64,7 +64,7 @@ npm run dev
 
 ### Docker (Recommended)
 
-1. Add your API key to `backend/.env`:
+1. Add your API key to `backend/api.env`:
 ```env
 OPENROUTER_API_KEY=your_key_here
 ```
