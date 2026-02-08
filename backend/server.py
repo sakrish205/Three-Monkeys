@@ -40,6 +40,7 @@ def get_best_model_list(task_type="creative"):
     if task_type == "analysis":
         # Put slightly faster high-capacity models first to avoid timeout
         return [
+            "stepfun/step-3.5-flash:free",
             "qwen/qwen-2.5-72b-instruct:free",
             "meta-llama/llama-3.3-70b-instruct:free",
             "google/gemma-2-9b-it:free",
@@ -51,6 +52,7 @@ def get_best_model_list(task_type="creative"):
         ]
     else:
         return [
+            "stepfun/step-3.5-flash:free",
             "google/gemini-2.0-flash-lite-preview-02-05:free",
             "qwen/qwen-2.5-7b-instruct:free",
             "meta-llama/llama-3.1-8b-instruct:free",
@@ -96,8 +98,8 @@ def call_openrouter_with_retry(prompt, task_type="creative"):
                     }
                 }
                 
-                # Use longer timeout for resume analysis as it generates more text
-                current_timeout = 45 if task_type == "analysis" else 30
+                # Use even longer timeout for resume analysis (60s) to handle slow free providers
+                current_timeout = 60 if task_type == "analysis" else 30
                 
                 response = requests.post(
                     "https://openrouter.ai/api/v1/chat/completions",
@@ -114,9 +116,9 @@ def call_openrouter_with_retry(prompt, task_type="creative"):
                         return content, None
                 
                 if response.status_code == 429:
-                    print(f"📉 Rate limited on {model_name}. Waiting 2s...")
-                    time.sleep(2) # Small wait for 429
-                    continue # Try this model again once more or move to next
+                    print(f"📉 Rate limited on {model_name}. Waiting 3s...")
+                    time.sleep(3) # Slightly longer wait
+                    continue 
                 
                 error_data = response.text
                 last_error = f"{model_name} ({response.status_code}): {error_data}"
@@ -181,6 +183,9 @@ def analyze_resume():
             
         if not resume_text:
             return jsonify({"error": f"Could not extract text from {file_type}"}), 400
+        
+        # Truncate text to avoid prompt bloat
+        resume_text = resume_text[:10000]
         
         prompt = f"""
         You are an expert ATS (Applicant Tracking System) analyzer specialized in Mechanical Engineering roles.
