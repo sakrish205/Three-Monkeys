@@ -84,7 +84,7 @@ export default function Market() {
                         <Sparkles className="h-5 w-5 text-amber-500 fill-amber-500" />
                         <span className="text-[10px] font-bold uppercase tracking-widest text-amber-600">Dynamic Skill-Market Optimizer</span>
                     </div>
-                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    <h1 className="text-3xl font-bold tracking-tight bg-gradient-to-r from-emerald-400 to-teal-500 bg-clip-text text-transparent">
                         CarrierPulse Insights
                     </h1>
                     <p className="text-muted-foreground mt-2 text-sm leading-relaxed">
@@ -96,37 +96,37 @@ export default function Market() {
 
             {/* AI Search Bar Replacing Domain Buttons */}
             <motion.div className="mb-8 max-w-4xl mx-auto" variants={itemVariants}>
-                <div className="relative group">
+                <div className="relative group bg-black/50 border border-white/10 backdrop-blur-lg rounded-2xl shadow-lg">
                     <div className="absolute inset-y-0 left-4 flex items-center pointer-events-none">
-                        <Search className="h-5 w-5 text-muted-foreground group-focus-within:text-blue-500 transition-colors" />
+                        <Search className="h-5 w-5 text-white/50 group-focus-within:text-emerald-400 transition-colors" />
                     </div>
                     <Input
                         placeholder="e.g., Cloud Roles, EV Design, AI in Robotics..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        className="h-14 pl-12 pr-32 text-lg rounded-2xl border-2 shadow-sm focus:ring-4 focus:ring-blue-500/10 transition-all bg-card/50 backdrop-blur-sm"
+                        className="h-14 pl-12 pr-32 text-lg rounded-2xl border-0 bg-transparent focus:ring-0 focus:outline-none text-white placeholder:text-white/40"
                     />
                     <div className="absolute inset-y-2 right-2 flex items-center">
                         <Button
                             onClick={() => fetchInsights()}
                             disabled={loading}
-                            className="h-10 px-6 rounded-xl bg-blue-600 hover:bg-blue-700 font-bold shadow-lg shadow-blue-500/20"
+                            className="h-10 px-6 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-black font-bold shadow-lg shadow-emerald-500/30"
                         >
                             {loading ? <RefreshCw className="h-4 w-4 animate-spin" /> : "Analyze Market"}
                         </Button>
                     </div>
                 </div>
-                <div className="mt-3 flex gap-3 px-2 overflow-x-auto pb-2 no-scrollbar">
-                    <span className="text-[10px] uppercase font-bold text-muted-foreground whitespace-nowrap pt-1">Trending:</span>
-                    {["EV Powertrain", "Robotics & Automation", "Generative Design", "Industry 4.0", "Additive Manufacturing"].map(tag => (
+                <div className="mt-3 flex flex-wrap gap-2 px-2 items-center">
+                    <span className="text-[10px] uppercase font-bold text-muted-foreground pt-1">Trending:</span>
+                    {["EV Powertrain", "Robotics & Automation", "Generative Design", "Industry 4.0", "Additive Manufacturing", "HVAC Systems", "CAD/CAM", "FEA & CFD", "Mechatronics", "Supply Chain", "Sustainable Engineering", "Digital Twin"].map(tag => (
                         <button
                             key={tag}
                             onClick={() => {
                                 setSearchQuery(tag);
                                 fetchInsights(tag);
                             }}
-                            className="px-3 py-1 rounded-full border bg-muted/40 hover:bg-blue-50 hover:border-blue-200 text-[11px] font-medium transition-colors whitespace-nowrap"
+                            className="px-3 py-1 rounded-full border border-border bg-secondary/40 hover:bg-emerald-500/20 hover:border-emerald-500/50 text-[11px] font-medium transition-colors text-foreground"
                         >
                             {tag}
                         </button>
