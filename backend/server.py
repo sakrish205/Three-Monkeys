@@ -92,7 +92,7 @@ def call_openrouter_with_retry(prompt, task_type="creative"):
                 payload = {
                     "model": model_name,
                     "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.5 if task_type == "analysis" else 0.7,
+                    "temperature": 0.1 if task_type == "analysis" else 0.7,
                     "provider": {
                         "allow_fallbacks": True
                     }
@@ -187,6 +187,9 @@ def analyze_resume():
         # Truncate text to avoid prompt bloat
         resume_text = resume_text[:10000]
         
+        # Calculate real word count programmatically for consistency
+        real_word_count = len(resume_text.split())
+        
         prompt = f"""
         You are an expert ATS (Applicant Tracking System) analyzer specialized in Mechanical Engineering roles.
         Analyze the following resume{" and job description" if job_description else ""}:
@@ -200,7 +203,6 @@ def analyze_resume():
         {{
           "score": <0-100>,
           "atsCompatibility": <0-100>,
-          "wordCount": <number>,
           "keywords": {{ "found": [], "missing": [] }},
           "skills": {{ "technical": [], "soft": [] }},
           "sections": {{ "summary": bool, "education": bool, "experience": bool, "projects": bool, "skills": bool }},
@@ -224,6 +226,9 @@ def analyze_resume():
                 "fileType": file_type,
                 "parsingSuccess": True
             }
+            # Inject pre-calculated word count for 100% accuracy
+            analysis["wordCount"] = real_word_count
+            
             return jsonify(analysis)
         except Exception as e:
             return jsonify({"error": f"Failed to parse AI response: {str(e)}"}), 500
