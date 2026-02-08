@@ -80,7 +80,7 @@ def call_openrouter_with_retry(prompt, task_type="creative"):
         max_model_retries = 2
         for attempt in range(max_model_retries):
             try:
-                print(f"\n⚡ Trying Model ({i+1}/{len(models)}): {model_name} [Key {key_index + 1}] (Attempt {attempt+1})")
+                print(f"\n[TRYING] Model ({i+1}/{len(models)}): {model_name} [Key {key_index + 1}] (Attempt {attempt+1})")
                 
                 headers = {
                     "Authorization": f"Bearer {current_key}",
@@ -112,24 +112,24 @@ def call_openrouter_with_retry(prompt, task_type="creative"):
                     res_data = response.json()
                     if res_data.get('choices'):
                         content = res_data['choices'][0]['message']['content'].strip()
-                        print(f"✅ Success with {model_name}")
+                        print(f"[SUCCESS] with {model_name}")
                         return content, None
                 
                 if response.status_code == 429:
-                    print(f"📉 Rate limited on {model_name}. Waiting 3s...")
+                    print(f"[RATE_LIMIT] on {model_name}. Waiting 3s...")
                     time.sleep(3) # Slightly longer wait
                     continue 
                 
                 error_data = response.text
                 last_error = f"{model_name} ({response.status_code}): {error_data}"
-                print(f"⚠️ Failed with {model_name}: Status {response.status_code}")
+                print(f"[FAILED] with {model_name}: Status {response.status_code}")
                 
                 # If not 429, just move to next model immediately
                 break 
                 
             except Exception as e:
                 last_error = str(e)
-                print(f"❌ Error with {model_name}: {str(e)}")
+                print(f"[ERROR] with {model_name}: {str(e)}")
                 break # Move to next model
                 
     return None, f"All models and keys failed. Last error: {last_error}"

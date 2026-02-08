@@ -39,7 +39,7 @@
 | **UI Design** | Glassmorphism + Sora Font |
 | **Backend** | Python Flask |
 | **AI Models** | Step 3.5 Flash, DeepSeek R1, Llama 3.3, Qwen 2.5 |
-| **Stability** | Multi-key Rotation + Exponential Backoff |
+| **Stability** | Multi-key Rotation + Exponential Backoff + Windows-Safe Logging |
 | **Animations** | Framer Motion |
 | **Deployment** | Docker + Docker Compose |
 
