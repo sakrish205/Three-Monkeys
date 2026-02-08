@@ -12,18 +12,125 @@ import re
 import requests
 
 # Load environment variables
-load_dotenv("api.env")
+basedir = os.path.abspath(os.path.dirname(__file__))
+load_dotenv(os.path.join(basedir, "api.env"))
 
 app = Flask(__name__)
 CORS(app)  # Enable CORS for React frontend
 
 # Configure APIs
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
-OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
+# Support multiple OpenRouter keys for redundancy and speed
+OPENROUTER_API_KEYS = [
+    os.getenv("OPENROUTER_API_KEY"),
+    os.getenv("OPENROUTER_API_KEY_2")
+]
+# Filter out None and empty strings
+OPENROUTER_API_KEYS = [k for k in OPENROUTER_API_KEYS if k]
 
 if GOOGLE_API_KEY:
     genai.configure(api_key=GOOGLE_API_KEY)
 
+import time
+
+def get_best_model_list(task_type="creative"):
+    """
+    Returns an optimized list of models for speed and reliability.
+    """
+    if task_type == "analysis":
+        # Put slightly faster high-capacity models first to avoid timeout
+        return [
+            "qwen/qwen-2.5-72b-instruct:free",
+            "meta-llama/llama-3.3-70b-instruct:free",
+            "google/gemma-2-9b-it:free",
+            "mistralai/pixtral-12b:free",
+            "liquid/lfm-40b:free",
+            "meta-llama/llama-3.1-8b-instruct:free",
+            "qwen/qwen-2.5-7b-instruct:free",
+            "microsoft/phi-3-medium-4k-instruct:free",
+        ]
+    else:
+        return [
+            "google/gemini-2.0-flash-lite-preview-02-05:free",
+            "qwen/qwen-2.5-7b-instruct:free",
+            "meta-llama/llama-3.1-8b-instruct:free",
+            "google/gemma-2-9b-it:free",
+            "microsoft/phi-3-mini-128k-instruct:free",
+            "meta-llama/llama-3.2-3b-instruct:free",
+        ]
+
+def call_openrouter_with_retry(prompt, task_type="creative"):
+    """
+    Helper to call OpenRouter with multiple keys, model fallbacks, and 429 retry logic.
+    """
+    if not OPENROUTER_API_KEYS:
+        return None, "No OpenRouter API keys configured"
+
+    models = get_best_model_list(task_type)
+    last_error = "Unknown error"
+    
+    for i, model_name in enumerate(models):
+        # Rotate through available keys
+        key_index = i % len(OPENROUTER_API_KEYS)
+        current_key = OPENROUTER_API_KEYS[key_index]
+        
+        # Max retries for a single model if it has a rate limit
+        max_model_retries = 2
+        for attempt in range(max_model_retries):
+            try:
+                print(f"\n⚡ Trying Model ({i+1}/{len(models)}): {model_name} [Key {key_index + 1}] (Attempt {attempt+1})")
+                
+                headers = {
+                    "Authorization": f"Bearer {current_key}",
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": "http://localhost:5173",
+                    "X-Title": "MechLab Career Intelligence",
+                }
+                
+                payload = {
+                    "model": model_name,
+                    "messages": [{"role": "user", "content": prompt}],
+                    "temperature": 0.5 if task_type == "analysis" else 0.7,
+                    "provider": {
+                        "allow_fallbacks": True
+                    }
+                }
+                
+                # Use longer timeout for resume analysis as it generates more text
+                current_timeout = 45 if task_type == "analysis" else 30
+                
+                response = requests.post(
+                    "https://openrouter.ai/api/v1/chat/completions",
+                    headers=headers,
+                    data=json.dumps(payload),
+                    timeout=current_timeout 
+                )
+                
+                if response.status_code == 200:
+                    res_data = response.json()
+                    if res_data.get('choices'):
+                        content = res_data['choices'][0]['message']['content'].strip()
+                        print(f"✅ Success with {model_name}")
+                        return content, None
+                
+                if response.status_code == 429:
+                    print(f"📉 Rate limited on {model_name}. Waiting 2s...")
+                    time.sleep(2) # Small wait for 429
+                    continue # Try this model again once more or move to next
+                
+                error_data = response.text
+                last_error = f"{model_name} ({response.status_code}): {error_data}"
+                print(f"⚠️ Failed with {model_name}: Status {response.status_code}")
+                
+                # If not 429, just move to next model immediately
+                break 
+                
+            except Exception as e:
+                last_error = str(e)
+                print(f"❌ Error with {model_name}: {str(e)}")
+                break # Move to next model
+                
+    return None, f"All models and keys failed. Last error: {last_error}"
 
 def extract_text_from_pdf(pdf_file):
     """Extract text from PDF file"""
@@ -49,129 +156,10 @@ def extract_text_from_docx(docx_file):
         print(f"Error extracting DOCX text: {str(e)}")
         return None
 
-def analyze_with_openrouter(resume_text, job_description):
-    """Analyze resume using OpenRouter with multiple model fallback"""
-    models_to_try = [
-        "meta-llama/llama-3.3-70b-instruct:free",
-        "google/gemma-3-27b-it:free",
-        "mistralai/mistral-small-3.1-24b-instruct:free",
-        "meta-llama/llama-3.2-3b-instruct:free",
-        "google/gemma-3-12b-it:free",
-        "google/gemma-3-4b-it:free",
-        "stepfun/step-3.5-flash:free",
-    ]
-    
-    last_error = None
-    
-    for model_name in models_to_try:
-        try:
-            print(f"\n--- Trying Model for Resume Analysis: {model_name} ---")
-            
-            prompt = f"""
-            You are an expert ATS (Applicant Tracking System) analyzer specialized in Mechanical Engineering roles.
-            
-            Analyze the following resume{" and job description" if job_description else ""}:
-            
-            RESUME:
-            {resume_text}
-            
-            {f"JOB DESCRIPTION: {job_description}" if job_description else ""}
-            
-            Provide a detailed analysis in the following JSON format (respond ONLY with valid JSON):
-            {{
-              "score": <overall score 0-100>,
-              "atsCompatibility": <ATS compatibility score 0-100>,
-              "wordCount": <word count>,
-              "keywords": {{
-                "found": [<list of relevant ME keywords found in resume>],
-                "missing": [<list of important ME keywords missing from resume{" that are in the JD" if job_description else ""}>]
-              }},
-              "skills": {{
-                "technical": [<list of technical skills found>],
-                "soft": [<list of soft skills found>]
-              }},
-              "sections": {{
-                "summary": <true/false>,
-                "education": <true/false>,
-                "experience": <true/false>,
-                "projects": <true/false>,
-                "skills": <true/false>
-              }},
-              "improvements": [<list of 5-7 specific improvement suggestions>]
-            }}
-            
-            Focus on Mechanical Engineering skills like: CAD (SolidWorks, AutoCAD, CATIA, Pro/E), FEA, CFD, ANSYS, MATLAB, 
-            Manufacturing processes, GD&T, Thermodynamics, Fluid Mechanics, Material Science, Design for Manufacturing, etc.
-            """
-            
-            headers = {
-                "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                "Content-Type": "application/json",
-                "HTTP-Referer": "http://localhost:3000",
-                "X-Title": "Three Monkeys Resume Pulse",
-            }
-            
-            payload = {
-                "model": model_name,
-                "messages": [{"role": "user", "content": prompt}],
-                "temperature": 0.5 # Lower temperature for better extraction
-            }
-            
-            response = requests.post(
-                "https://openrouter.ai/api/v1/chat/completions",
-                headers=headers,
-                data=json.dumps(payload),
-                timeout=60
-            )
-            
-            if response.status_code != 200:
-                error_msg = f"OpenRouter Error {response.status_code} with {model_name}: {response.text}"
-                print(f"❌ {error_msg}")
-                last_error = error_msg
-                continue
-                
-            res_data = response.json()
-            if not res_data.get('choices'):
-                print(f"Empty response from {model_name}")
-                continue
-                
-            response_text = res_data['choices'][0]['message']['content'].strip()
-            
-            # Extract JSON from response
-            json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-            if json_match:
-                response_text = json_match.group(0)
-            
-            analysis = json.loads(response_text)
-            
-            # Ensure we have the formatting field
-            if "formatting" not in analysis:
-                analysis["formatting"] = {
-                    "fileType": "PDF", # Default, update in route
-                    "parsingSuccess": True
-                }
-            
-            print(f"Success with model: {model_name}")
-            return analysis
-            
-        except Exception as e:
-            error_msg = f"Error with {model_name}: {str(e)}"
-            print(f"❌ {error_msg}")
-            last_error = str(e)
-            continue
-            
-    # If we get here, all models failed
-    print("All models failed for Resume Analysis.")
-    if last_error:
-        with open("backend_errors.log", "a", encoding="utf-8") as f:
-            f.write(f"Resume Analysis - All models failed. Last error: {last_error}\n")
-    return None
-
 @app.route("/api/analyze-resume", methods=["POST"])
 def analyze_resume():
     """API endpoint to analyze resume"""
     try:
-        # Check if file was uploaded
         if 'resumeFile' not in request.files:
             return jsonify({"error": "No resume file provided"}), 400
         
@@ -194,30 +182,49 @@ def analyze_resume():
         if not resume_text:
             return jsonify({"error": f"Could not extract text from {file_type}"}), 400
         
-        # Analyze with OpenRouter API
-        if OPENROUTER_API_KEY:
-            analysis = analyze_with_openrouter(resume_text, job_description)
-            if analysis:
-                # Update file type in response
-                if "formatting" in analysis:
-                    analysis["formatting"]["fileType"] = file_type
-                return jsonify(analysis)
+        prompt = f"""
+        You are an expert ATS (Applicant Tracking System) analyzer specialized in Mechanical Engineering roles.
+        Analyze the following resume{" and job description" if job_description else ""}:
+        
+        RESUME:
+        {resume_text}
+        
+        {f"JOB DESCRIPTION: {job_description}" if job_description else ""}
+        
+        Respond ONLY with valid JSON in this format:
+        {{
+          "score": <0-100>,
+          "atsCompatibility": <0-100>,
+          "wordCount": <number>,
+          "keywords": {{ "found": [], "missing": [] }},
+          "skills": {{ "technical": [], "soft": [] }},
+          "sections": {{ "summary": bool, "education": bool, "experience": bool, "projects": bool, "skills": bool }},
+          "improvements": []
+        }}
+        """
+        
+        content, error = call_openrouter_with_retry(prompt, task_type="analysis")
+        
+        if error:
+            return jsonify({"error": error}), 500
+            
+        try:
+            json_match = re.search(r'(\{.*\})', content, re.DOTALL)
+            if json_match:
+                analysis = json.loads(json_match.group(1))
             else:
-                return jsonify({"error": "Analysis failed check backend_errors.log"}), 500
-        else:
-            # Fallback: Return mock data if no API key
-            return jsonify({
-                "error": "OPENROUTER_API_KEY not configured. Please add your OpenRouter API key to .env file",
-                "note": "Get API key from: https://openrouter.ai/keys"
-            }), 503
+                analysis = json.loads(content)
+                
+            analysis["formatting"] = {
+                "fileType": file_type,
+                "parsingSuccess": True
+            }
+            return jsonify(analysis)
+        except Exception as e:
+            return jsonify({"error": f"Failed to parse AI response: {str(e)}"}), 500
             
     except Exception as e:
-        error_msg = f"Error in analyze_resume endpoint: {str(e)}"
-        print(error_msg)
-        import traceback
-        traceback_print = traceback.format_exc()
-        with open("backend_errors.log", "a", encoding="utf-8") as f:
-            f.write(error_msg + "\n" + traceback_print + "\n")
+        print(f"Error in analyze_resume: {str(e)}")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/market/insights", methods=["GET"])
@@ -225,157 +232,47 @@ def get_market_insights():
     """Generate high-variance AI-powered market insights for Indian Job Market"""
     domain = request.args.get("domain", "Mechanical Engineering")
     try:
-        models_to_try = [
-            "meta-llama/llama-3.3-70b-instruct:free",
-            "google/gemma-3-27b-it:free",
-            "mistralai/mistral-small-3.1-24b-instruct:free",
-            "meta-llama/llama-3.2-3b-instruct:free",
-            "google/gemma-3-12b-it:free",
-            "google/gemma-3-4b-it:free",
-            "stepfun/step-3.5-flash:free",
-        ]
+        prompt = f"""
+        Act as a specialized career advisor and industrial market analyst for CORE ENGINEERING fields in India.
+        Domain: {domain}
         
-        last_error = None
-        for model_name in models_to_try:
-            try:
-                print(f"\n--- Trying Model: {model_name} ---")
-                
-                # Adding a random salt to ensure data variety between requests
-                import random
-                salt = random.randint(1, 1000)
-                
-                prompt = f"""
-                Act as a specialized career advisor and industrial market analyst for CORE ENGINEERING fields (Mechanical, Robotics, Mechatronics, HVAC, Automation, Automotive, Design Engineering). 
-                Focus EXCLUSIVELY on the INDIAN job market for {domain}.
-                Respond ONLY with valid JSON.
-                
-                Generate realistic, high-variance data for the following structure:
-                {{
-                  "trends": [
-                    {{ "month": "Jan", "demand": 65, "supply": 45 }},
-                    {{ "month": "Feb", "demand": 72, "supply": 48 }},
-                    {{ "month": "Mar", "demand": 85, "supply": 52 }},
-                    {{ "month": "Apr", "demand": 78, "supply": 55 }},
-                    {{ "month": "May", "demand": 92, "supply": 58 }},
-                    {{ "month": "Jun", "demand": 88, "supply": 60 }}
-                  ],
-                  "topSkills": [
-                    {{ "name": "Skill 1", "demand": 92, "growth": "+45%", "category": "Core" }},
-                    {{ "name": "Skill 2", "demand": 88, "growth": "+35%", "category": "Tech" }},
-                    {{ "name": "Skill 3", "demand": 82, "growth": "+25%", "category": "Core" }},
-                    {{ "name": "Skill 4", "demand": 78, "growth": "+40%", "category": "Tech" }},
-                    {{ "name": "Skill 5", "demand": 75, "growth": "+15%", "category": "Core" }}
-                  ],
-                  "jobAlerts": [
-                    {{
-                      "id": 1,
-                      "role": "Role Name",
-                      "company": "Company Name",
-                      "location": "City",
-                      "salary": "₹10L - ₹15L",
-                      "match": 95,
-                      "posted": "2 days ago",
-                      "tags": ["Tag1", "Tag2"],
-                      "description": "Job description focusing on {domain} in India."
-                    }},
-                    {{ "id": 2, "role": "Role Name 2", "company": "Company 2", "location": "City 2", "salary": "₹8L - ₹12L", "match": 88, "posted": "1 week ago", "tags": ["Tag3"], "description": "Description." }},
-                    {{ "id": 3, "role": "Role Name 3", "company": "Company 3", "location": "City 3", "salary": "₹12L - ₹18L", "match": 82, "posted": "3 days ago", "tags": ["Tag4"], "description": "Description." }}
-                  ],
-                  "pivotRecommendation": {{
-                    "role": "Emerging {domain} Role",
-                    "match": 85,
-                    "description": "Career advice for pivoting into this role in India."
-                  }},
-                  "learningIntervention": {{
-                    "plannedSkill": "Legacy/Standard Skill in {domain}",
-                    "targetSkill": "Modern/Surging Tech in {domain}",
-                    "increase": 40,
-                    "rationale": "Write a 3-sentence narrative strictly about {domain}. Explain that while Indian students traditionally focused on '<plannedSkill>', our analysis of Indian industrial hubs shows a 40%+ surge in demand for '<targetSkill>'. Suggest a pivot in their learning strategy to master '<targetSkill>' for better placement outcomes."
-                  }}
-                }}
-                
-                CRITICAL: Every value must be related to {domain}. Randomize all numbers by +/- 20%.
-                """
-                
-                headers = {
-                    "Authorization": f"Bearer {OPENROUTER_API_KEY}",
-                    "Content-Type": "application/json",
-                    "HTTP-Referer": "http://localhost:3000", # Optional, for OpenRouter rankings
-                    "X-Title": "Three Monkeys Career Pulse", # Optional
-                }
-                
-                payload = {
-                    "model": model_name,
-                    "messages": [{"role": "user", "content": prompt}],
-                    "temperature": 0.7
-                }
-                
-                response = requests.post(
-                    "https://openrouter.ai/api/v1/chat/completions",
-                    headers=headers,
-                    data=json.dumps(payload),
-                    timeout=60 # OpenRouter free models can be slow
-                )
-                
-                if response.status_code != 200:
-                    error_msg = f"OpenRouter Error {response.status_code} with {model_name}: {response.text}"
-                    print(f"❌ {error_msg}")
-                    # Log to file for diagnostics
-                    with open("openrouter_debug.log", "a") as f:
-                        f.write(f"\n{model_name}: {response.status_code} - {response.text}")
-                    last_error = error_msg
-                    continue
-                
-                res_data = response.json()
-                if not res_data.get('choices'):
-                    print(f"Empty response from {model_name}")
-                    continue
-                    
-                response_text = res_data['choices'][0]['message']['content'].strip()
-                
-                json_match = re.search(r'\{.*\}', response_text, re.DOTALL)
-                if json_match:
-                    response_text = json_match.group(0)
-                    
-                try:
-                    data = json.loads(response_text)
-                    print(f"Generated High-Variance Indian Data for {domain} using OpenRouter {model_name} (Seed: {salt})")
-                    return jsonify(data)
-                except json.JSONDecodeError as je:
-                    print(f"JSON Decode Error with {model_name}: {str(je)}")
-                    continue
-                    
-            except Exception as e:
-                error_str = str(e)
-                print(f"Error with {model_name}: {error_str}")
-                last_error = error_str
-                continue
-
+        Generate realistic, high-variance JSON data:
+        {{
+          "trends": [ {{ "month": "Jan", "demand": 65, "supply": 45 }}, ... ],
+          "topSkills": [ {{ "name": "Skill", "demand": 92, "growth": "+45%", "category": "Core" }} ],
+          "jobAlerts": [ {{ "id": 1, "role": "Role", "company": "Company", "location": "City", "salary": "Range", "match": 95, "posted": "2d ago", "tags": [], "description": "" }} ],
+          "pivotRecommendation": {{ "role": "Emerging Role", "match": 85, "description": "" }},
+          "learningIntervention": {{ "plannedSkill": "Legacy", "targetSkill": "Modern", "increase": 40, "rationale": "" }}
+        }}
+        """
         
-        return jsonify({"error": f"All models failed. Last error: {last_error}"}), 500
+        content, error = call_openrouter_with_retry(prompt, task_type="creative")
+        
+        if error:
+            return jsonify({"error": error}), 500
+            
+        try:
+            json_match = re.search(r'(\{.*\})', content, re.DOTALL)
+            if json_match:
+                data = json.loads(json_match.group(1))
+            else:
+                data = json.loads(content)
+            return jsonify(data)
+        except Exception as e:
+            return jsonify({"error": f"Failed to parse insights: {str(e)}"}), 500
             
     except Exception as e:
-        error_msg = f"Backend Error for {domain}: {str(e)}"
-        print(error_msg)
-        import traceback
-        traceback_print = traceback.format_exc()
-        print(traceback_print)
-        with open("backend_errors.log", "a", encoding="utf-8") as f:
-            f.write(error_msg + "\n" + traceback_print + "\n")
         return jsonify({"error": str(e)}), 500
 
 @app.route("/api/health", methods=["GET"])
 def health_check():
-    """Health check endpoint"""
     return jsonify({
         "status": "running",
-        "gemini_api_configured": bool(GOOGLE_API_KEY)
+        "api_keys_configured": len(OPENROUTER_API_KEYS)
     })
 
 if __name__ == "__main__":
     port = int(os.getenv("PORT", 5000))
-    print(f"🚀 Backend server starting on http://localhost:{port}")
-    print(f"📊 Gemini API configured: {bool(GOOGLE_API_KEY)}")
-    if not GOOGLE_API_KEY:
-        print("⚠️  Add GOOGLE_API_KEY to .env file for real analysis")
+    print(f"🚀 MechLab Backend starting on http://localhost:{port}")
+    print(f"� Configured Keys: {len(OPENROUTER_API_KEYS)}")
     app.run(debug=True, port=port)
