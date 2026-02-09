@@ -31,7 +31,57 @@ OPENROUTER_API_KEYS = [k for k in OPENROUTER_API_KEYS if k]
 if GOOGLE_API_KEY:
     genai.configure(api_key=GOOGLE_API_KEY)
 
+# Ollama configuration for local fallback
+OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+OLLAMA_MODEL = os.getenv("OLLAMA_MODEL", "llama3.2:latest")
+
 import time
+
+def call_ollama(prompt, task_type="creative"):
+    """
+    Call local Ollama instance as a backup when OpenRouter fails.
+    Returns (content, error) tuple.
+    """
+    try:
+        print(f"\n[OLLAMA] Trying local model: {OLLAMA_MODEL}")
+        
+        payload = {
+            "model": OLLAMA_MODEL,
+            "prompt": prompt,
+            "stream": False,
+            "options": {
+                "temperature": 0.1 if task_type == "analysis" else 0.7,
+            }
+        }
+        
+        response = requests.post(
+            f"{OLLAMA_BASE_URL}/api/generate",
+            json=payload,
+            timeout=120  # Longer timeout for local inference
+        )
+        
+        if response.status_code == 200:
+            res_data = response.json()
+            content = res_data.get("response", "").strip()
+            if content:
+                print(f"[OLLAMA SUCCESS] Got response from {OLLAMA_MODEL}")
+                return content, None
+            return None, "Empty response from Ollama"
+        
+        return None, f"Ollama error: {response.status_code} - {response.text}"
+        
+    except requests.exceptions.ConnectionError:
+        return None, "Ollama not running. Start with: ollama serve"
+    except Exception as e:
+        return None, f"Ollama error: {str(e)}"
+
+def check_ollama_available():
+    """Check if Ollama is running and accessible."""
+    try:
+        response = requests.get(f"{OLLAMA_BASE_URL}/api/tags", timeout=2)
+        return response.status_code == 200
+    except:
+        return False
 
 def get_best_model_list(task_type="creative"):
     """
@@ -132,7 +182,14 @@ def call_openrouter_with_retry(prompt, task_type="creative"):
                 print(f"[ERROR] with {model_name}: {str(e)}")
                 break # Move to next model
                 
-    return None, f"All models and keys failed. Last error: {last_error}"
+    # Fallback to local Ollama if all OpenRouter attempts failed
+    print("\n[FALLBACK] OpenRouter failed, trying local Ollama...")
+    ollama_content, ollama_error = call_ollama(prompt, task_type)
+    if ollama_content:
+        return ollama_content, None
+    
+    # If Ollama also failed, return combined error
+    return None, f"All cloud models failed. Last: {last_error}. Ollama: {ollama_error}"
 
 def extract_text_from_pdf(pdf_file):
     """Extract text from PDF file"""
@@ -343,9 +400,12 @@ def get_market_insights():
 
 @app.route("/api/health", methods=["GET"])
 def health_check():
+    ollama_available = check_ollama_available()
     return jsonify({
         "status": "running",
-        "api_keys_configured": len(OPENROUTER_API_KEYS)
+        "api_keys_configured": len(OPENROUTER_API_KEYS),
+        "ollama_available": ollama_available,
+        "ollama_model": OLLAMA_MODEL if ollama_available else None
     })
 
 if __name__ == "__main__":
